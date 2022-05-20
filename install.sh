@@ -10,6 +10,7 @@ opam init -y
 eval $(opam env)
 opam install mparser=1.2.3 -y
 opam install . --deps-only -y
+opam install printbox.0.5
 eval $(opam env)
 make
 cd ..
