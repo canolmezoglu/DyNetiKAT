@@ -3,7 +3,7 @@ sudo apt-get update
 sudo apt install libncurses5 opam git python3-pip --assume-yes
 pip3 install numpy networkx
 
-#install NetKAT tool
+#install NetKAT tool --note: ocaml compiler at version 4.08.1 is used
 git clone https://github.com/netkat-lang/netkat/
 cd netkat
 opam init -y
