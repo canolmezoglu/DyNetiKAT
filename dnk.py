@@ -12,6 +12,7 @@ from src.python.util import is_exe, is_json
 direct = os.path.dirname(os.path.realpath(__file__))
 output_folder = os.path.join(direct, 'output')
 maude_preprocess_file = os.path.join(direct, 'src/maude/preprocess.maude')
+maude_lts_file = os.path.join(direct, 'src/maude/lts.maude')
 maude_dnk_file = os.path.join(direct, 'src/maude/dnk.maude')
 maude_path = ''
 netkat_path = ''
@@ -57,7 +58,8 @@ if __name__ == "__main__":
     # preprocessing step
     preprocessing_start = perf_counter()
     preprocessor = Preprocessing(direct, maude_path, netkat_path, options.netkat_version, maude_preprocess_file,
-                                 maude_dnk_file, options.preprocessed, options.num_threads)
+                                 maude_dnk_file,maude_lts_file, options.preprocessed, options.num_threads)
+    can = preprocessor.lts_parse(data)
     data = preprocessor.preprocess(data)
     if not options.preprocessed:
         if not os.path.exists(output_folder):

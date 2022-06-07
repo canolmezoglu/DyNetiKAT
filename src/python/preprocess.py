@@ -10,13 +10,14 @@ from src.python.util import generate_error_message, generate_outfile
 
 class Preprocessing:
     def __init__(self, direct, maude_path, netkat_path, netkat_version, maude_preprocess_file, 
-                 maude_dnk_file, preprocessed=False, num_threads=None):
+                 maude_dnk_file,maude_lts_file, preprocessed=False, num_threads=None):
         self.direct = direct
         self.maude_path = maude_path
         self.netkat_path = netkat_path
         self.netkat_version = netkat_version
         self.maude_preprocess_file = maude_preprocess_file
         self.maude_dnk_file = maude_dnk_file
+        self.maude_lts_file = maude_lts_file
         self.preprocessed = preprocessed
         self.num_threads = num_threads
 
@@ -128,3 +129,27 @@ class Preprocessing:
                                  self.maude_dnk_file, data['recursive_variables'], data['channels'], True)
 
         return data
+
+    def lts_parse(self,data):
+        '''The method to parse DyNetKAT input for creating a LTS '''
+        maude_parser = MaudeComm(self.direct, self.maude_path, generate_outfile(self.direct, "preprocess_maude"))
+        self.generate_maude_file(os.path.join(self.direct, data['file_name']), data['module_name'],
+                                 self.maude_lts_file, data['recursive_variables'],
+                                 data['channels'], False)
+        programs = {}
+        programs['recursive_variables'] ={}
+
+        if self.num_threads is None:
+            netkat_pool = Pool()
+        else:
+            netkat_pool = Pool(processes=self.num_threads)
+
+        for k, v in data['recursive_variables'].items():
+            programs['recursive_variables'][k], error = maude_parser.execute(os.path.join(self.direct, data['file_name']),
+                                                          data['module_name'], v)
+            if programs['recursive_variables'][k] is None:
+                generate_error_message("Maude", k, v, error, True)
+
+        netkat_pool.close()
+        netkat_pool.join()
+        return programs
