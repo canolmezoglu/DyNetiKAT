@@ -33,35 +33,46 @@ fmod DNA is
 
 	op zero : -> String .
 	op bot : -> DNA .
-	op rcfg(_,_) : Channel String -> Comm .
 
 	op pi{_}(_) : Nat DNA -> DNA .
 
-	op @Send(_>>_) : Channel String -> Send [strat(0)] .
-	op @Receive(_>>_) : Channel String -> Receive [strat(0)] .
+	op @Send(_>>_) : Channel String -> Comm [strat(0)] .
+	op @Receive(_>>_) : Channel String -> Comm [strat(0)] .
 
 	op @NetKAT(_) : String -> String [strat(0)] .
 	op @Channel(_) : Channel -> Channel [strat(0)] .
+	op @Recursive(_) : Recursive -> Recursive [strat(0)].
 
 	op parseCond(_) : String -> Bool .
 	op parseCond(_) : Channel -> Bool .
+	op parseCond(_) : Recursive -> Bool .
+
 
 	var X : Channel .
 	var D : DNA .
+	var C : Comm .
 	var N : String .
+	vars R RPrime : Recursive .
 
 
 	eq (X ! N) ; D = @Send(X >> N) ; D .
 	eq (X ? N) ; D = @Receive(X >> N) ; D .
 
+    ceq R || RPrime = @Recursive(R) || RPrime if parseCond(R) .
+    ceq N ; R = N ; @Recursive(R) if parseCond(R) .
+    ceq C ; R = C ; @Recursive(R) if parseCond(R) .
+
 	ceq @Send(X >> N) ; D =  @Send( @Channel(X) >> N) ; D  if parseCond(X) .
 	ceq @Receive(X >> N) ; D =  @Receive( @Channel(X) >> N) ; D  if parseCond(X) .
 	ceq N ; D = @NetKAT(N) ; D if parseCond(N) .
 
+
 	eq parseCond(@NetKAT(N)) = false .
 	eq parseCond(@Channel(X)) = false .
+	eq parseCond(@Recursive(R)) = false .
 	eq parseCond(N) = true [owise] .
 	eq parseCond(X) = true [owise] .
+	eq parseCond(R) = true [owise] .
 endfm
 
 
