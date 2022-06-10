@@ -3,6 +3,7 @@ import re
 import subprocess
 import numpy as np
 from src.python.util import export_file, execute_cmd
+import pexpect
 
 
 
@@ -23,19 +24,55 @@ class NetKATComm:
     def comm_idd(self, file1, file2):
         '''Generates a system command to run the netkat-idd tool on the given input files and executes it.'''
         cmd = ['{} equiv {} {}'.format(self.netkat_path, file1, file2)]
+
         return execute_cmd(cmd, self.direct)
+
+    def comm_idd_eval(self, policy_file, package):
+        '''Generates a system command to run the netkat-idd tool on the given input files and executes it.'''
+        child  =pexpect.spawn('{} repl'.format(self.netkat_path) )
+        outfile = '{}_eval.txt'.format(self.out_file)
+        fout = open(outfile, 'wb')
+        child.logfile = fout
+        index = child.expect(["Welcome"])
+        if index==0:
+            child.sendline("load {}".format(policy_file))
+            child.expect(["Policy:"])
+            child.sendline("eval " + package)
+            child.expect(["yields:"])
+            child.sendline("quit")
+            child.expect(pexpect.EOF)
+        child.close()
+        fout.close()
+        lines = ""
+        with open(outfile) as f:
+                lines = f.readlines()
+
+        if os.path.exists('{}_eval.txt'.format(self.out_file)):
+            os.remove('{}_eval.txt'.format(self.out_file))
+
+        return self.process_eval_output(lines)
+
 
 
     def process_output(self, output):
         '''Parses the output obtained from the NetKAT tool.'''
         try:
             if self.netkat_version == "netkat-idd":
-                return re.search('expressions equivalent: (.*)', output).group(1)
+                 return re.search('expressions equivalent: (.*)', output).group(1)
             elif self.netkat_version == "netkat-automata":
                 return re.search('Bisimulation result: (.*)', output).group(1)
         except Exception:
             return None
 
+    def process_eval_output(self,output):
+        y = (i for i, v in enumerate(output) if "--------" in v)
+        result = list()
+        for x in range(next(y) + 1,len(output)):
+            if ("netkat> quit" in output[x]):
+                break
+            result.append(output[x].strip())
+
+        return result
 
     def tool_format(self, term1, term2):
         '''Converts the given terms into the netkat tool's format.'''
@@ -93,3 +130,13 @@ class NetKATComm:
                 os.remove(outfile)
 
         return output, error
+
+    ##add error
+    def execute2(self,term1):
+        outfile_1 = "{}_lts.txt".format(self.out_file)
+        term1,term2 = self.tool_format(term1,term1)
+        export_file(outfile_1,term1)
+        output = self.comm_idd_eval(outfile_1,"pt=1")
+        if os.path.exists(outfile_1):
+            os.remove(outfile_1)
+        return output
