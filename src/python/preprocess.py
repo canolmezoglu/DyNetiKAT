@@ -153,7 +153,7 @@ class Preprocessing:
                              data['module_name'], data['program'])
         if programs['program'] is None:
             generate_error_message("Maude", error, True)
-        programs['program'] = "".join( programs["program"] .split())
+        programs['program'] = "".join( programs["program"] .split()) + ",pt=01::pt=10::{},{}"
         netkat_pool.close()
         netkat_pool.join()
         return programs

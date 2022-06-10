@@ -6,7 +6,7 @@ from time import perf_counter
 from src.python.preprocess import Preprocessing
 from src.python.dynetkat import DyNetKAT
 from src.python.util import is_exe, is_json
-from src.python.lts_create import create_automata
+from src.python.lts_create import *
 
 
 
@@ -60,7 +60,8 @@ if __name__ == "__main__":
     preprocessing_start = perf_counter()
     preprocessor = Preprocessing(direct, maude_path, netkat_path, options.netkat_version, maude_preprocess_file,
                                  maude_dnk_file,maude_lts_file, options.preprocessed, options.num_threads)
-    create_automata(preprocessor.lts_parse(data))
+    lts_parser = Lts_creator(direct, netkat_path, options.netkat_version)
+    lts_parser.create_automata(preprocessor.lts_parse(data))
     data = preprocessor.preprocess(data)
     if not options.preprocessed:
         if not os.path.exists(output_folder):

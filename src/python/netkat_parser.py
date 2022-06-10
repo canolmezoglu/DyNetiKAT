@@ -65,8 +65,16 @@ class NetKATComm:
             return None
 
     def process_eval_output(self,output):
-        y = (i for i, v in enumerate(output) if "--------" in v)
         result = list()
+        brr = False
+        for tss in output:
+            if "--------" in tss:
+                brr = True
+
+        if not brr:
+            return result
+
+        y = (i for i, v in enumerate(output) if "--------" in v)
         for x in range(next(y) + 1,len(output)):
             if ("netkat> quit" in output[x]):
                 break
@@ -132,11 +140,11 @@ class NetKATComm:
         return output, error
 
     ##add error
-    def execute2(self,term1):
+    def execute2(self,term1,packet):
         outfile_1 = "{}_lts.txt".format(self.out_file)
         term1,term2 = self.tool_format(term1,term1)
         export_file(outfile_1,term1)
-        output = self.comm_idd_eval(outfile_1,"pt=1")
+        output = self.comm_idd_eval(outfile_1,packet)
         if os.path.exists(outfile_1):
             os.remove(outfile_1)
         return output

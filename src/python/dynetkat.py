@@ -71,7 +71,6 @@ class DyNetKAT:
                                        generate_outfile(self.direct, "netkat_" + str(q) + "_" + str(counter)))
             if prop_type == "r":
                 term1 = self.hbh_reachability_term(data['in_packets'][q], prop, data['out_packets'][q])
-                netkat_parser.execute2('(pt = 1 . pt := 2)')
                 netkat_start = perf_counter()
                 result, error = netkat_parser.execute(term1, "zero")
                 netkat_end = perf_counter()
