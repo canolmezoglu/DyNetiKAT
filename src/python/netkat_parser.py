@@ -78,6 +78,8 @@ class NetKATComm:
         for x in range(next(y) + 1,len(output)):
             if ("netkat> quit" in output[x]):
                 break
+            if ("---------" in output[x]):
+                continue
             result.append(output[x].strip())
 
         return result

@@ -58,7 +58,7 @@ fmod DNA is
 	eq (X ! N) ; D = @Send(X >> N) ; D .
 	eq (X ? N) ; D = @Receive(X >> N) ; D .
 
-    ceq R || RPrime = @Recursive(R) || RPrime if parseCond(R) .
+    ceq R || D = @Recursive(R) || D if parseCond(R) .
     ceq N ; R = N ; @Recursive(R) if parseCond(R) .
     ceq C ; R = C ; @Recursive(R) if parseCond(R) .
 
@@ -74,6 +74,5 @@ fmod DNA is
 	eq parseCond(X) = true [owise] .
 	eq parseCond(R) = true [owise] .
 endfm
-
 
 
