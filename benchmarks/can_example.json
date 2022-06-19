@@ -1,0 +1,21 @@
+{
+    "module_name": "CAN-EXAMPLE",
+    "recursive_variables": {
+        "OpenLock": "(LockOpen ! \"one\") ; OpenLock o+ (ClientOneReq ? \"one\") ; ClosedLock",
+        "ClosedLock": "(ClientOneEnd ? \"one\") ; OpenLock",
+        "ClientOneIn": "(ClientOneReq ! \"one\") ; ClientOneOut",
+        "ClientOneOut": "((ClientOneInside ! \"one\") ; ((ClientOneEnd ! \"one\")  ; ClientOneIn))",
+        "ClientTwoOut": "(LockOpen ? \"one\") ; ClientTwoIn",
+        "ClientTwoIn": "(ClientTwoInside ! \"one\") ; ClientTwoIn"
+    },
+    "program": "OpenLock || ClientTwoOut || ClientOneIn",
+    "channels": [
+        "ClientOneReq",
+        "ClientOneEnd",
+        "ClientOneInside",
+        "ClientTwoInside",
+        "LockOpen"
+    ]
+
+
+}

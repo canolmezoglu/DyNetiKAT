@@ -146,9 +146,11 @@ class Preprocessing:
         for k, v in data['recursive_variables'].items():
             programs['recursive_variables'][k], error = maude_parser.execute(os.path.join(self.direct, data['file_name']),
                                                           data['module_name'], v)
-            programs['recursive_variables'][k].strip()
+
             if programs['recursive_variables'][k] is None:
                 generate_error_message("Maude", k, v, error, True)
+            programs['recursive_variables'][k].strip()
+
         programs['program'], error =  maude_parser.execute(os.path.join(self.direct, data['file_name']),
                              data['module_name'], data['program'])
         if programs['program'] is None:
