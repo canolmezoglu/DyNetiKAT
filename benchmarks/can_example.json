@@ -1,21 +1,38 @@
 {
+    "in_packets": {
+        "int_to_ext": "(pt = 1)"
+    },
+    "out_packets": {
+        "int_to_ext": "(pt = 2)"
+    },
     "module_name": "CAN-EXAMPLE",
     "recursive_variables": {
-        "OpenLock": "(LockOpen ! \"one\") ; OpenLock o+ (ClientOneReq ? \"one\") ; ClosedLock",
-        "ClosedLock": "(ClientOneEnd ? \"one\") ; OpenLock",
-        "ClientOneIn": "(ClientOneReq ! \"one\") ; ClientOneOut",
-        "ClientOneOut": "((ClientOneInside ! \"one\") ; ((ClientOneEnd ! \"one\")  ; ClientOneIn))",
-        "ClientTwoOut": "(LockOpen ? \"one\") ; ClientTwoIn",
-        "ClientTwoIn": "(ClientTwoInside ! \"one\") ; ClientTwoIn"
+        "H3": "(NoVirtualCircuit ! \"one\") ; H3 o+ (VirtualCircuitReq ? \"one\") ; H3Prime",
+        "H3Prime": "(VirtualCircuitEnd ? \"one\") ; H3",
+        "C2": "(VirtualCircuitReq ! \"one\") ; C2Prime",
+        "C2Prime": "(VirtualCircuitEnd ! \"one\") ; C2",
+        "S1": "(VirtualCircuitReq ? \"one\") ; S1Prime ",
+        "S1Prime": "\"(pt = 1 . pt <- 2)\" ; S1Prime  o+ (VirtualCircuitEnd ? \"one\") ; S1",
+        "S2": "(NoVirtualCircuit ? \"one\") ; S2Prime ",
+        "S2Prime": "\"(pt = 3 . pt <- 4)\"  ; S2"
     },
-    "program": "OpenLock || ClientTwoOut || ClientOneIn",
+    "program": "H3 || S1 || S2 || C2",
     "channels": [
-        "ClientOneReq",
-        "ClientOneEnd",
-        "ClientOneInside",
-        "ClientTwoInside",
-        "LockOpen"
-    ]
+        "NoVirtualCircuit",
+        "VirtualCircuitReq",
+        "VirtualCircuitEnd"
+    ],
+     "properties": {
+        "int_to_ext": [
+            [
+                "r",
+                "head(@Program)",
+                "=0",
+                2
+          ]
+        ]
+
+    }
 
 
 }

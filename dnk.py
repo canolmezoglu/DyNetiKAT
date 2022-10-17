@@ -60,8 +60,12 @@ if __name__ == "__main__":
     preprocessing_start = perf_counter()
     preprocessor = Preprocessing(direct, maude_path, netkat_path, options.netkat_version, maude_preprocess_file,
                                  maude_dnk_file,maude_lts_file, options.preprocessed, options.num_threads)
+    lts_start = perf_counter()
     lts_parser = Lts_creator(direct, netkat_path, options.netkat_version)
     lts_parser.create_automata(preprocessor.lts_parse(data))
+    lts_stop = perf_counter()
+    print("LTS time: {:.2f} seconds".format(lts_stop - lts_start))
+
     data = preprocessor.preprocess(data)
     if not options.preprocessed:
         if not os.path.exists(output_folder):
@@ -100,6 +104,7 @@ if __name__ == "__main__":
     # report timing
     if options.time_stats:
         program_stop = perf_counter()
+
         print("Total time: {:.2f} seconds".format(program_stop-program_start))
         print("Preprocessing time: {:.2f} seconds".format(preprocessing_stop-preprocessing_start))
         print("NetKAT time: {:.2f} seconds".format(max_netkat_time))

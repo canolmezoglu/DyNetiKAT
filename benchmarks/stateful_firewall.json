@@ -13,7 +13,7 @@
         "SwitchPrime": "\"(pt = 1 . pt <- 2)\" ; SwitchPrime o+ \"(pt = 2 . pt <- 1)\" ; SwitchPrime o+ (secConEnd ? \"one\") ; Switch",
         "Host": "(secConReq ! \"one\") ; Host o+ (secConEnd ! \"one\") ; Host"
     }, 
-    "channels": ["secConReq", "secConEnd"], 
+    "channels": ["secConReq", "secConEnd"],
     "program": "Host || Switch", 
     "properties": {
         "int_to_ext": [

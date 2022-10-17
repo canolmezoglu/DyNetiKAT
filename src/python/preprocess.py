@@ -161,7 +161,8 @@ class Preprocessing:
             programs['program'] = replacedString
             replacedString = programs['program'].replace("))",")")
 
-        programs['program'] = "".join(programs["program"] .split()) + ",pt=01::pt=10::{},{}"
+
+        programs['program'] = "".join(programs["program"] .split()) + ",pt=01::pt=11::{},{}"
         netkat_pool.close()
         netkat_pool.join()
         return programs

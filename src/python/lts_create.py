@@ -69,12 +69,12 @@ class Lts_creator:
         automata = dict()
         nodes = list()
         nodes.append(data['program'].strip())
+        initial_state = nodes[0]
         programs = self.get_programs(data)
         while nodes:
             curr = nodes.pop()
             automata[curr] = dict()
             P, recursive = self.get_curr_programs(curr, programs)
-
             H = self.get_packages(curr, True)
             HPrime = self.get_packages(curr, False)
             for index, program in enumerate(P):
@@ -92,7 +92,6 @@ class Lts_creator:
                                 automata[curr][pss].append(self.get_channel(choice) + " !")
                             else:
                                  automata[curr][pss].append(self.get_channel(choice) + " ?")
-
                             if pss not in automata:
                                 nodes.append(pss)
                             rcfg = self.check_rcfg(P, choice, index)
@@ -159,22 +158,12 @@ class Lts_creator:
                     automata[curr][pss].append("netkat( " + (str(elem)) + " >> " + str(result) + " )")
                     if pss not in automata:
                         nodes.append(pss)
-        graph = GvGen()
-        # add nodes
-        gvgen_is_shit = dict()
-        for node in automata:
-            gvgen_is_shit[node] =  graph.newItem(name=node)
-        for node in automata:
-            for node2 in automata[node]:
-                for labels in automata[node][node2]:
-                    graph.newLink(src=gvgen_is_shit[node], dst=gvgen_is_shit[node2], label=labels)
-        f = open("gaerr.dot", mode='w')
-        graph.dot(f)
-
+        dotfile = self.create_dot_file(automata,initial_state)
+        print(dotfile)
         return automata
 
     def check_send(self, program):
-        return (program.strip()).startswith("@Send")
+        return (program.strip()).startswith("@Send") or (program.strip()).startswith("(@Send")
 
     def check_netkat(self, program):
         return (program.strip()).startswith("@NetKAT")
@@ -191,18 +180,56 @@ class Lts_creator:
                 for choice in choices:
                     if self.check_receive(choice) and self.get_channel(choice) == channel:
                         receiving.append((index, self.get_next_state(choice)))
+            else:
+                if self.check_receive(program) and self.get_channel(program) == channel:
+                    receiving.append((index, self.get_next_state(program)))
         return receiving
 
     def check_receive(self, choice):
-        return choice.startswith("@Receive")
+        return choice.startswith("@Receive") or (choice.strip()).startswith("(@Receive")
 
+    def create_dot_file(self, automata, initial):
+        dotlines = ["digraph automaton {"]
+        dotlines.append("	graph[fontsize=8]")
+        dotlines.append("	rankdir=LR; " )
+        dotlines.append("	graph[fontsize=8]")
+        numbered_automata = self.number_automata(automata,initial)
+        for node in numbered_automata:
+            dotlines.append(" node{} [label = \"{}\"];".format(numbered_automata[node], node))
+        print("node count: " + str(len(automata)))
+        edge_count = 0
+        for node in automata:
+            for node2 in automata[node]:
+                for labels in automata[node][node2]:
+                    edge_count += 1
+                    if labels.startswith("netkat"):
+                        labels = labels[6:]
+                        labels = labels.replace(">>",",")
+                    dotlines.append(" node{}->node{} [label = \"{}\"];".format(numbered_automata[node],numbered_automata[node2], labels))
+        dotlines.append('}')
+        print("edge count: " + str(edge_count))
+        dot = "\n".join(dotlines)
+        return dot
+
+    def number_automata(self,automata,initial):
+        newdict= dict()
+        newdict[initial] = 1
+        for node in automata:
+            if node not in newdict:
+                newdict[node] = len(newdict) + 1
+        return newdict
     def get_channel(self, program):
         channel = program.split("@Channel(")[1]
         channel = channel.split(")")[0].strip()
         return channel
 
     def get_next_state(self, program):
-        return "".join(program.split(";")[1:])
+        ccc = program.split(";")[1:]
+        if len(ccc) == 2:
+            temp = ccc.pop()
+            ccc.append(";")
+            ccc.append(temp)
+        return "".join(ccc)
 
     def get_recursive_name(self, programs, value):
         for k in programs:
