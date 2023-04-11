@@ -101,7 +101,7 @@ class Preprocessing:
             for k, v in data['recursive_variables'].items():
                 # parse with maude and extract netkat terms and communication terms
                 parsed_terms[k], error = maude_parser.execute(os.path.join(self.direct, data['file_name']),
-                                                              data['module_name'], v)
+                                                              data['module_name'], v,)
 
                 if parsed_terms[k] is None:
                     generate_error_message("Maude", k, v, error, True)
@@ -145,24 +145,25 @@ class Preprocessing:
 
         for k, v in data['recursive_variables'].items():
             programs['recursive_variables'][k], error = maude_parser.execute(os.path.join(self.direct, data['file_name']),
-                                                          data['module_name'], v)
+                                                          data['module_name'], v,True)
 
             if programs['recursive_variables'][k] is None:
                 generate_error_message("Maude", k, v, error, True)
             programs['recursive_variables'][k].strip()
 
-        programs['program'], error =  maude_parser.execute(os.path.join(self.direct, data['file_name']),
-                             data['module_name'], data['program'])
+        programs['program'], error = maude_parser.execute(os.path.join(self.direct, data['file_name']),
+                             data['module_name'], data['program'],True)
+
         if programs['program'] is None:
             generate_error_message("Maude", error, True)
-        programs['program'] = programs['program'].replace("(@","@")
-        replacedString = programs['program'].replace("))",")")
-        while (  len(programs['program']) > len(replacedString) ):
-            programs['program'] = replacedString
-            replacedString = programs['program'].replace("))",")")
+        # programs['program'] = programs['program'].replace("(@","@")
+        # replacedString = programs['program'].replace("))",")")
+        # while (  len(programs['program']) > len(replacedString) ):
+        #     programs['program'] = replacedString
+        #     replacedString = programs['program'].replace("))",")")
 
 
-        programs['program'] = "".join(programs["program"] .split()) + ",pt=01::pt=11::{},{}"
+        programs['program'] = "".join(programs["program"] .split()) + ",pt=01::pt=10::{},{}"
         netkat_pool.close()
         netkat_pool.join()
         return programs

@@ -62,7 +62,7 @@ if __name__ == "__main__":
                                  maude_dnk_file,maude_lts_file, options.preprocessed, options.num_threads)
     lts_start = perf_counter()
     lts_parser = Lts_creator(direct, netkat_path, options.netkat_version)
-    lts_parser.create_automata(preprocessor.lts_parse(data))
+    lts_parser.create_automata2(preprocessor.lts_parse(data))
     lts_stop = perf_counter()
     print("LTS time: {:.2f} seconds".format(lts_stop - lts_start))
 
